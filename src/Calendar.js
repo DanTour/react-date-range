@@ -48,10 +48,14 @@ class Calendar extends Component {
       date,
       shownDate : (shownDate || range && range['endDate'] || date).clone().add(offset, 'months'),
       firstDayOfWeek: (firstDayOfWeek || moment.localeData().firstDayOfWeek()),
+      hoveredDates: []
     }
+
+    this.dayCellHoveredHandler = this.dayCellHovered;
 
     this.state  = state;
     this.styles = getTheme(theme);
+    console.log('state', state);
   }
 
   componentDidMount() {
@@ -198,7 +202,7 @@ class Calendar extends Component {
       // set days before today to isPassive
       var _today = moment()
       if (disableDaysBeforeToday && Number(dayMoment.diff(_today,"days")) <= -1) {
-        days.push({ dayMoment ,isPassive:true});
+        days.push({ dayMoment, isPassive:true});
       } else {
         days.push({ dayMoment });
       }
@@ -210,8 +214,8 @@ class Calendar extends Component {
       const dayMoment  = nextMonth.clone().date(i);
       days.push({ dayMoment, isPassive : true });
     }
-
     const today = moment().startOf('day');
+
     return days.map((data, index) => {
       const { dayMoment, isPassive } = data;
       const isSelected    = !range && (dayMoment.unix() === dateUnix);
@@ -225,10 +229,10 @@ class Calendar extends Component {
         return dayMoment.endOf('day').isSame(specialDay.date.endOf('day'));
       });
       const isOutsideMinMax = isOusideMinMax(dayMoment, minDate, maxDate, format);
-
       return (
         <DayCell
           onSelect={ this.handleSelect.bind(this) }
+          { ...range }
           { ...data }
           theme={ styles }
           isStartEdge = { isStartEdge }
@@ -242,9 +246,32 @@ class Calendar extends Component {
           isPassive = { isPassive || isOutsideMinMax }
           onlyClasses = { onlyClasses }
           classNames = { classes }
+          onItemMouseEnter = { this.dayCellHoveredHandler }
         />
       );
     })
+  }
+  // comment
+  dayCellHovered(dayMoment, startDate, endDate) {
+    if (startDate.isSame(endDate, 'day')) {
+      const moments = [];
+      const daysDif = dayMoment.diff(startDate, 'day');
+      if (daysDif === 0) return;
+      if (daysDif > 0) {
+        // means hovered city after selected
+        for (let i = 1; i <= daysDif; i++) {
+          let _dayMoment = dayMoment.clone();
+          console.log('ADD', i, _dayMoment.add(i, 'd'));
+          moments.push(_dayMoment);
+        }
+      } else {
+        console.log('else', daysDif);
+        for (let i = -1; i >= daysDif; i--) {
+          moments.push(_dayMoment.add(i, 'd'))
+        }
+      }
+      console.log('moments', moments);
+    }
   }
 
   render() {

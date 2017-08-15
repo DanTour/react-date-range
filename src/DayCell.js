@@ -22,11 +22,14 @@ class DayCell extends Component {
 
     if (this.props.isPassive) return null;
 
+    let { onItemMouseEnter, dayMoment, startDate, endDate } = this.props;
+
     const newState = {};
 
     switch (event.type) {
       case 'mouseenter':
         newState['hover'] = true;
+        onItemMouseEnter(dayMoment, startDate, endDate);
         break;
 
       case 'mouseup':
