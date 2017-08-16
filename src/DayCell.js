@@ -19,9 +19,7 @@ class DayCell extends Component {
 
   handleMouseEvent(event) {
     event.preventDefault();
-
-    if (this.props.isPassive) return null;
-
+    if (this.props.isPassive ) return null;
     let { onItemMouseEnter, dayMoment, startDate, endDate } = this.props;
 
     const newState = {};
@@ -85,43 +83,58 @@ class DayCell extends Component {
   }
 
   getClassNames(classes) {
-    const { isSelected, isInRange, isPassive, isStartEdge, isEndEdge, isToday, isSunday, isSpecialDay } = this.props;
+    const { isSelected, 
+            isInRange,
+            isPassive,
+            isStartEdge,
+            isEndEdge,
+            isToday,
+            isSunday,
+            isSpecialDay,
+            inHoveredRange,
+            isWeekend,
+            isDisabled
+           } = this.props;
 
     return classnames({
-      [classes.day]       : true,
-      [classes.dayActive] : isSelected,
-      [classes.dayPassive]: isPassive,
-      [classes.dayInRange]: isInRange,
-      [classes.dayStartEdge] : isStartEdge,
-      [classes.dayEndEdge] : isEndEdge,
-      [classes.dayToday] : isToday,
-      [classes.daySunday]: isSunday,
-      [classes.daySpecialDay]: isSpecialDay,
+      [classes.day]           : true,
+      [classes.dayActive]     : isSelected || inHoveredRange,
+      [classes.dayPassive]    : isPassive,
+      [classes.dayDisabled]   : isDisabled,
+      [classes.dayInRange]    : isInRange || inHoveredRange,
+      [classes.dayStartEdge]  : isStartEdge,
+      [classes.dayEndEdge]    : isEndEdge,
+      [classes.dayToday]      : isToday,
+      [classes.daySunday]     : isSunday,
+      [classes.daySpecialDay] : isSpecialDay,
+      [classes.weekend]       : isWeekend
     });
 
   }
 
   render() {
-    const { dayMoment, onlyClasses, classNames } = this.props;
+    const { dayMoment, onlyClasses, classNames, isPassive, isDisabled } = this.props;
 
     const { styles } = this;
     const stateStyle = this.getStateStyles();
     const classes    = this.getClassNames(classNames);
     const dayWrapperStyles = {
       width: styles['Day'].width,
-      height: styles['Day'].height,
-      display: styles['Day'].display
+      height: !isPassive ? styles['Day'].height : 0,
+      display: styles['Day'].display,
+      overflow: !isPassive ? 'visible' : 'hidden'
+
     };
 
     return (
       <span
         style={onlyClasses ? undefined : dayWrapperStyles}
-        onClick={ this.handleSelect.bind(this) }>
+        onClick={ isDisabled ? undefined : this.handleSelect.bind(this) }>
         <span
-          onMouseEnter={ this.handleMouseEvent.bind(this) }
-          onMouseLeave={ this.handleMouseEvent.bind(this) }
-          onMouseDown={ this.handleMouseEvent.bind(this) }
-          onMouseUp={ this.handleMouseEvent.bind(this) }
+          onMouseEnter={ isDisabled ? undefined : this.handleMouseEvent.bind(this) }
+          onMouseLeave={ isDisabled ? undefined : this.handleMouseEvent.bind(this) }
+          onMouseDown={ isDisabled ? undefined : this.handleMouseEvent.bind(this) }
+          onMouseUp={ isDisabled ? undefined : this.handleMouseEvent.bind(this) }
           className={ classes }
           style={onlyClasses ? undefined : {...styles['Day'], ...stateStyle}}>
           { dayMoment.date() }

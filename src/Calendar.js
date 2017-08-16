@@ -13,6 +13,23 @@ function checkRange(dayMoment, range) {
   )
 }
 
+function isInHovered(dayMoment, moments) {
+  let isInMoments = false;
+  moments.forEach(moment => {
+    if (dayMoment.isSame(moment, 'day')) isInMoments = true
+  });
+  return isInMoments;
+}
+
+function checkWeekend(dayMoment) {
+  let isWeekend = false;
+
+  if (dayMoment.day() === 0 || dayMoment.day() === 6) {
+    isWeekend = true;
+  }
+  return isWeekend;
+}
+
 function checkStartEdge(dayMoment, range) {
   const { startDate } = range;
 
@@ -38,7 +55,6 @@ class Calendar extends Component {
     super(props, context);
 
     const { format, range, theme, offset, firstDayOfWeek, locale, shownDate } = props;
-
     if(locale) {
       moment.locale(locale);
     }
@@ -51,11 +67,10 @@ class Calendar extends Component {
       hoveredDates: []
     }
 
-    this.dayCellHoveredHandler = this.dayCellHovered;
+    this.dayCellHoveredHandler = this.dayCellHovered.bind(this);
 
     this.state  = state;
     this.styles = getTheme(theme);
-    console.log('state', state);
   }
 
   componentDidMount() {
@@ -85,9 +100,9 @@ class Calendar extends Component {
     const { date } = this.state;
 
     onChange && onChange(newDate, Calendar);
-
     if (!link) {
       this.setState({ date : newDate });
+      if (date.isSame(newDate, 'day')) this.setState({ hoveredDates: [] })
     }
   }
 
@@ -109,18 +124,22 @@ class Calendar extends Component {
 
   renderMonthAndYear(classes) {
     const shownDate       = this.getShownDate();
-    let month           = moment.months(shownDate.month());
+    let month             = moment.months(shownDate.month());
     const year            = shownDate.year();
     const { styles }      = this;
-    const { onlyClasses, lang, showMonthArrow} = this.props;
-
+    const { onlyClasses, lang, showMonthArrow, Arrow, initialDate } = this.props;
+    
     let monthLower = month.toLowerCase()
     month = (lang && LangDic[lang] && LangDic[lang][monthLower]) ? LangDic[lang][monthLower] : month;
 
     return (
       <div style={onlyClasses ? undefined : styles['MonthAndYear']} className={classes.monthAndYearWrapper}>
         {
-          showMonthArrow ?
+          showMonthArrow && shownDate.isAfter(initialDate, 'month') ?
+          Arrow ? 
+          <Arrow 
+            onClick={this.changeMonth.bind(this, -1)}
+          /> :
           <button
             type="button"
             style={onlyClasses ? undefined : { ...styles['MonthButton'], float : 'left' }}
@@ -131,11 +150,15 @@ class Calendar extends Component {
         }
         <span>
           <span className={classes.month}>{month}</span>
-          <span className={classes.monthAndYearDivider}> - </span>
+          <span className={classes.monthAndYearDivider}>{' '}</span>
           <span className={classes.year}>{year}</span>
         </span>
         {
           showMonthArrow ?
+          Arrow ? 
+          <Arrow 
+            onClick={this.changeMonth.bind(this, +1)}
+          /> :
           <button
             type="button"
             style={onlyClasses ? undefined : { ...styles['MonthButton'], float : 'right' }}
@@ -170,10 +193,10 @@ class Calendar extends Component {
     // TODO: Split this logic into smaller chunks
     const { styles }               = this;
 
-    const { range, minDate, maxDate, format, onlyClasses, disableDaysBeforeToday, specialDays } = this.props;
+    const { range, minDate, maxDate, format, onlyClasses, disableDaysBeforeToday, specialDays, initialDate } = this.props;
 
     const shownDate                = this.getShownDate();
-    const { date, firstDayOfWeek } = this.state;
+    const { date, firstDayOfWeek, hoveredDates } = this.state;
     const dateUnix                 = date.unix();
 
     const monthNumber              = shownDate.month();
@@ -218,19 +241,23 @@ class Calendar extends Component {
 
     return days.map((data, index) => {
       const { dayMoment, isPassive } = data;
-      const isSelected    = !range && (dayMoment.unix() === dateUnix);
-      const isInRange     = range && checkRange(dayMoment, range);
-      const isStartEdge   = range && checkStartEdge(dayMoment, range);
-      const isEndEdge     = range && checkEndEdge(dayMoment, range);
-      const isEdge        = isStartEdge || isEndEdge;
-      const isToday       = today.isSame(dayMoment);
-      const isSunday      = dayMoment.day() === 0;
-      const isSpecialDay  = specialDays && specialDays.some((specialDay) => {
+      const isSelected      = !range && (dayMoment.unix() === dateUnix);
+      const isInRange       = range && checkRange(dayMoment, range);
+      const isStartEdge     = range && checkStartEdge(dayMoment, range);
+      const isEndEdge       = range && checkEndEdge(dayMoment, range);
+      const isEdge          = isStartEdge || isEndEdge;
+      const inHoveredRange  = isInHovered(dayMoment, hoveredDates);
+      const isToday         = today.isSame(dayMoment);
+      const isWeekend       = checkWeekend(dayMoment);
+      const isSunday        = dayMoment.day() === 0;
+      const isSpecialDay    = specialDays && specialDays.some((specialDay) => {
         return dayMoment.endOf('day').isSame(specialDay.date.endOf('day'));
       });
+      
       const isOutsideMinMax = isOusideMinMax(dayMoment, minDate, maxDate, format);
       return (
         <DayCell
+          isDisabled={ !dayMoment.isAfter(initialDate, 'day') }
           onSelect={ this.handleSelect.bind(this) }
           { ...range }
           { ...data }
@@ -239,10 +266,12 @@ class Calendar extends Component {
           isEndEdge = { isEndEdge }
           isSelected={ isSelected || isEdge }
           isInRange={ isInRange }
+          isWeekend={ isWeekend }
           isSunday={ isSunday }
           isSpecialDay={ isSpecialDay }
           isToday={ isToday }
           key={ index }
+          inHoveredRange={ inHoveredRange }
           isPassive = { isPassive || isOutsideMinMax }
           onlyClasses = { onlyClasses }
           classNames = { classes }
@@ -256,21 +285,20 @@ class Calendar extends Component {
     if (startDate.isSame(endDate, 'day')) {
       const moments = [];
       const daysDif = dayMoment.diff(startDate, 'day');
-      if (daysDif === 0) return;
+      if (daysDif === 0) return
       if (daysDif > 0) {
         // means hovered city after selected
-        for (let i = 1; i <= daysDif; i++) {
-          let _dayMoment = dayMoment.clone();
-          console.log('ADD', i, _dayMoment.add(i, 'd'));
-          moments.push(_dayMoment);
+        for (let i = daysDif; i >= 0; i--) {
+          moments.push(dayMoment.clone().add((-1*i), 'd'));
         }
       } else {
-        console.log('else', daysDif);
-        for (let i = -1; i >= daysDif; i--) {
-          moments.push(_dayMoment.add(i, 'd'))
+        for (let i = daysDif; i <= 0; i++) {
+          moments.push(dayMoment.clone().add((-1*i), 'd'))
         }
       }
-      console.log('moments', moments);
+      this.setState({ hoveredDates: moments });
+    } else {
+      this.setState({ hoveredDates: [] });
     }
   }
 

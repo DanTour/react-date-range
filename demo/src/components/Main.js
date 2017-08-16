@@ -1,12 +1,20 @@
 import React, { Component } from 'react';
 import moment from 'moment';
+import 'moment/locale/ru'
 import { defaultRanges, Calendar, DateRange } from '../../../lib';
 import Section from 'components/Section';
-
+// import Arrow from 'react-arrow';
 import 'normalize.css';
 import 'styles/global'
 import styles from 'styles/main';
 import '../../../src/styles.scss'
+
+const Arrow = ( props ) => {
+  const styles = {
+    cursor: 'pointer'
+  }
+  return <div style={styles} onClick={props.onClick}>Privet</div>
+}
 
 export default class Main extends Component {
   constructor(props, context) {
@@ -49,13 +57,13 @@ export default class Main extends Component {
               value={ rangePicker['endDate'] && rangePicker['endDate'].format(format).toString() }
             />
           </div>
-
           <DateRange
             startDate='10/11/2015'
             calendars={1}
-            endDate={ now => {
-              return '11/12/2015';
-            }}
+            startDate={moment().add(1, 'days')}
+            endDate={moment().add(7, 'days')}
+            lang={'ru'}
+            Arrow={Arrow}
             onInit={ this.handleChange.bind(this, 'rangePicker') }
             onChange={ this.handleChange.bind(this, 'rangePicker') }
           />

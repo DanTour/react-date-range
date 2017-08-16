@@ -10,6 +10,7 @@ $calendar-padding: 10px !default;
 $cell-margin: 0 !default;
 $cell-size: (($calendar-width - $calendar-padding * 2) / 7) - ($cell-margin * 2) - 1 !default;
 $calendar-shadow: rgba($calendar-color, 0.25) 0 0 1em !default;
+$calendar-weekend-color: #f60;;
 
 .rdr-DateRange {
     display: block;
@@ -119,6 +120,12 @@ $calendar-shadow: rgba($calendar-color, 0.25) 0 0 1em !default;
         opacity: 0.4;
     }
 
+    &.rdr-Day-disabled {
+        opacity: .4;
+        cursor: not-allowed !important;
+
+    }
+
     &.is-selected {
         color: $calendar-background;
         background: $calendar-day-selected-background;
@@ -129,7 +136,12 @@ $calendar-shadow: rgba($calendar-color, 0.25) 0 0 1em !default;
         background: $calendar-day-in-range-background;
     }
 
-    &:hover:not(.is-selected) {
-        background: $calendar-day-hover-background;
-    }
+    // &:hover:not(.is-selected) {
+    //     background: $calendar-day-hover-background;
+    // }
+
+}
+
+.rdr-Weekend {
+    color: $calendar-weekend-color;
 }

@@ -9,6 +9,8 @@ export const defaultClasses = {
   weekDay                    : 'rdr-WeekDay',
   days                       : 'rdr-Days',
   day                        : 'rdr-Day',
+  dayDisabled                : 'rdr-Day-disabled',
+  weekend                    : 'rdr-Weekend',
   dayActive                  : 'is-selected',
   dayPassive                 : 'is-passive',
   dayInRange                 : 'is-inRange',
@@ -81,14 +83,16 @@ const defaultTheme = {
   },
 
   DayStartEdge : {
+    color: '#fff'
   },
 
   DayEndEdge : {
+    color: '#fff'
   },
 
   DayInRange : {
     background    : '#34495e',
-    color         : '#95a5a6',
+    color         : '#ffffff',
   },
 
   Weekday : {
@@ -107,7 +111,9 @@ const defaultTheme = {
     fontSize      : 12,
     padding       : '10px 0',
     height        : 38,
-    lineHeight    : '18px'
+    lineHeight    : '18px',
+    display       : 'flex',
+    justifyContent: 'space-between'
   },
 
   MonthButton : {
