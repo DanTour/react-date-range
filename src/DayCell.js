@@ -54,19 +54,37 @@ class DayCell extends Component {
 
   getStateStyles() {
     const { hover, active } = this.state;
-    const { isSelected, isInRange, isPassive, isStartEdge, isEndEdge, dayMoment, isToday, isSunday, isSpecialDay } = this.props;
+    
+    const { 
+      isSelected,
+      isInRange,
+      isPassive,
+      isStartEdge,
+      isEndEdge,
+      dayMoment,
+      isToday,
+      isSunday,
+      isSpecialDay,
+      isDisabled,
+      inHoveredRange,
+      isWeekend
+    } = this.props;
+
     const { styles } = this;
 
-    const hoverStyle    = hover ? styles['DayHover'] : {};
-    const activeStyle   = active ? styles['DayActive'] : {};
-    const passiveStyle  = isPassive ? styles['DayPassive'] : {};
-    const startEdgeStyle = isStartEdge ? styles['DayStartEdge'] : {};
-    const endEdgeStyle   = isEndEdge ? styles['DayEndEdge'] : {};
-    const selectedStyle = isSelected ? styles['DaySelected'] : {};
-    const inRangeStyle  = isInRange ? styles['DayInRange'] : {};
-    const todayStyle    = isToday ? styles['DayToday'] : {};
-    const sundayStyle = isSunday ? styles['DaySunday'] : {};
+    const hoverStyle      = hover && !isInRange ? styles['DayHover'] : {};
+    const activeStyle     = active ? styles['DayActive'] : {};
+    const passiveStyle    = isPassive ? styles['DayPassive'] : {};
+    const startEdgeStyle  = isStartEdge ? styles['DayStartEdge'] : {};
+    const endEdgeStyle    = isEndEdge ? styles['DayEndEdge'] : {};
+    const selectedStyle   = isSelected ? styles['DaySelected'] : {};
+    const inRangeStyle    = (isInRange || inHoveredRange) ? styles['DayInRange'] : {};
+    const todayStyle      = isToday ? styles['DayToday'] : {};
+    const sundayStyle     = isSunday ? styles['DaySunday'] : {};
     const specialDayStyle = isSpecialDay ? styles['DaySpecialDay'] : {};
+    const disabledStyle   = isDisabled ? styles['DayDisabled'] : {};
+    const weekendStyle    = isWeekend ? styles['DayWeekend'] : {};
+
 
     return {
       ...todayStyle,
@@ -78,7 +96,9 @@ class DayCell extends Component {
       ...activeStyle,
       ...selectedStyle,
       ...startEdgeStyle,
-      ...endEdgeStyle
+      ...endEdgeStyle,
+      ...disabledStyle,
+      ...weekendStyle
     };
   }
 

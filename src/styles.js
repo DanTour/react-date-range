@@ -61,7 +61,10 @@ const defaultTheme = {
   DayHover : {
     background    : '#bdc3c7',
   },
-
+  DayDisabled: {
+    opacity       : 0.4,
+    cursor        : 'not-allowed'
+  },
   DayToday : {
   },
 
@@ -88,6 +91,10 @@ const defaultTheme = {
 
   DayEndEdge : {
     color: '#fff'
+  },
+
+  DayWeekend: {
+    color: '#f60',
   },
 
   DayInRange : {
@@ -247,6 +254,11 @@ export default (customTheme = {}) => {
 
     PredefinedRangesItem : { ...defaultTheme.PredefinedRangesItem, ...customTheme.PredefinedRangesItem },
 
-    PredefinedRangesItemActive : { ...defaultTheme.PredefinedRangesItemActive, ...customTheme.PredefinedRangesItemActive }
+    PredefinedRangesItemActive : { ...defaultTheme.PredefinedRangesItemActive, ...customTheme.PredefinedRangesItemActive },
+
+    DayDisabled: { ...defaultTheme.DayDisabled, ...customTheme.DayDisabled },
+
+    DayWeekend: { ...defaultTheme.DayWeekend, ...customTheme.DayWeekend }
+
   }
 }
