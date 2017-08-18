@@ -6,6 +6,7 @@ import Calendar from './Calendar.js';
 import PredefinedRanges from './PredefinedRanges.js';
 import getTheme, { defaultClasses } from './styles.js';
 
+
 class DateRange extends Component {
 
   constructor(props, context) {
@@ -16,9 +17,16 @@ class DateRange extends Component {
     const startDate = parseInput(props.startDate, format, 'startOf');
     const endDate   = parseInput(props.endDate, format, 'endOf');
 
+    this.onCalendarLeavedHandler = this.onCalendarLeaved.bind(this);
+
+    this.dayCellHoveredHandler = this.dayCellHovered.bind(this);
+
     this.state = {
-      range     : { startDate, endDate },
-      link      : linkedCalendars && endDate,
+      range         : { startDate, endDate },
+      link          : linkedCalendars && endDate,
+      isRangeFixed  : startDate && endDate ? true : false,
+      isStartDateChanging: false,
+      isEndDateChanging: false
     }
 
     this.step = 0;
@@ -42,26 +50,46 @@ class DateRange extends Component {
     }
   }
 
-  setRange(range, source, triggerChange) {
+  setRange(range, source, triggerChange, additionalData = null) {
     const { onChange } = this.props
     range = this.orderRange(range);
+    
+    let newState = {
+      range
+    };
 
-    this.setState({ range }, () => triggerChange && onChange && onChange(range, source));
+    if (additionalData) {
+      Object.keys(additionalData).forEach(key => newState[key] = additionalData[key])
+    }
+    this.setState(newState, () => triggerChange && onChange && onChange(range, source));
+  }
+
+  onCalendarLeaved(evt) {
+    if (evt.target.className.split(' ').indexOf('rdr-Day') !== -1)  {
+      // yes className
+      console.log('mouseenter');
+      this.calendarLeaved = true;
+    } else {
+      // no className
+      console.log('mouseleave')
+    }
   }
 
   handleSelect(date, source) {
+    
     if (date.startDate && date.endDate) {
       this.step = 0;
-      return this.setRange(date, source, true);
+      return this.setRange(date, source, true, {
+        isRangeFixed: !isRangeFixed,
+      });
     }
 
     const { startDate, endDate } = this.state.range;
-
+    const { isRangeFixed } = this.state;
     const range = {
-      startDate : startDate,
-      endDate   : endDate
+      startDate,
+      endDate,
     };
-
     switch (this.step) {
       case 0:
         range['startDate'] = date;
@@ -74,10 +102,11 @@ class DateRange extends Component {
         this.step = 0;
         break;
     }
-
-    const triggerChange = !this.props.twoStepChange || this.step === 0 && this.props.twoStepChange;
-
-    this.setRange(range, source, triggerChange);
+    const triggerChange  = !this.props.twoStepChange || this.step === 0 && this.props.twoStepChange;
+    
+    this.setRange(range, source, triggerChange, {
+      isRangeFixed: !isRangeFixed,
+    });
   }
 
   handleLinkChange(direction) {
@@ -106,9 +135,65 @@ class DateRange extends Component {
     }
   }
 
+  dayCellHovered(dayMoment, startDate, endDate) {
+    const { isRangeFixed, isEndDateChanging, isStartDateChanging } = this.state;
+    if ( !isRangeFixed ) {
+      if ( !(dayMoment.isSame(startDate, 'day') || dayMoment.isSame(endDate, 'day')) ) {
+        // dates not the same
+        if (dayMoment.isAfter(endDate)) {
+          // date after end of date range, means user moves right,
+          let range = {
+            startDate,
+            endDate: dayMoment
+          }
+          if ( isStartDateChanging ) {
+            range.startDate = endDate,
+            range.endDate = dayMoment
+          }
+          return this.setRange(range, false, true, {
+            isEndDateChanging: true,
+            isStartDateChanging: false
+          })
+        }
+        if (dayMoment.isBetween(startDate, endDate, 'day')) {
+          let range = {}
+          if ( isEndDateChanging ) {
+            range.endDate = dayMoment;
+            range.startDate = startDate;
+          } else {
+            range.startDate = dayMoment;
+            range.endDate = endDate;
+          }
+
+          return this.setRange(range, false, true);
+        }
+
+        if (dayMoment.isBefore(startDate)) {
+          // date before start date, means user moves left
+          let range = {
+            endDate,
+            startDate: dayMoment
+          };
+
+          if ( isEndDateChanging ) {
+            range.startDate = startDate;
+            range.endDate = dayMoment;
+          }
+
+          return this.setRange(range, false, true, {
+            isStartDateChanging: true,
+            isEndDateChanging: false
+          });
+        }
+      } else {
+        return this.setRange({ startDate: dayMoment, endDate:dayMoment }, false, true);
+      }
+    }
+  }
+
   render() {
     const { ranges, format, linkedCalendars, style, calendars, firstDayOfWeek, minDate, maxDate, classNames, onlyClasses, specialDays, lang, disableDaysBeforeToday, offsetPositive, shownDate, showMonthArrow, rangedCalendars, Arrow } = this.props;
-    const { range, link } = this.state;
+    const { range, link, isRangeFixed } = this.state;
     const { styles } = this;
 
     const classes = { ...defaultClasses, ...classNames };
@@ -157,8 +242,10 @@ class DateRange extends Component {
 		            onlyClasses={ onlyClasses }
 		            specialDays={ specialDays }
                 classNames={ classes }
-                onChange={ this.handleSelect.bind(this) }  
+                onChange={ isRangeFixed ? this.handleSelect.bind(this) : () => this.handleSelect.bind(this)(range) }  
                 Arrow={Arrow}
+                onDayCellHover={ this.dayCellHoveredHandler }
+                onCalendarOver={ this.onCalendarLeavedHandler }
               />
             );
           }

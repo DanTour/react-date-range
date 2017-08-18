@@ -50,7 +50,7 @@ const defaultTheme = {
     textAlign     : 'center',
     fontSize      : 12,
     cursor        : 'pointer',
-    transition    : 'transform .1s ease',
+    //transition    : 'transform .1s ease',
   },
 
   DayPassive : {
@@ -78,6 +78,10 @@ const defaultTheme = {
     background    : '#95a5a6',
     color         : '#ffffff',
     transform     : 'scale(0.9)',
+  },
+
+  DayActiveWeekend: {
+    color: '#fff'
   },
 
   DaySelected : {
@@ -258,7 +262,9 @@ export default (customTheme = {}) => {
 
     DayDisabled: { ...defaultTheme.DayDisabled, ...customTheme.DayDisabled },
 
-    DayWeekend: { ...defaultTheme.DayWeekend, ...customTheme.DayWeekend }
+    DayWeekend: { ...defaultTheme.DayWeekend, ...customTheme.DayWeekend },
+
+    DayActiveWeekend: { ...defaultTheme.DayActiveWeekend, ...customTheme.DayActiveWeekend }
 
   }
 }

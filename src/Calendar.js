@@ -6,19 +6,15 @@ import DayCell from './DayCell.js';
 import LangDic from './LangDic.js';
 import getTheme, { defaultClasses } from './styles.js';
 
+
 function checkRange(dayMoment, range) {
+  // a bit bugged as for me
   return (
     dayMoment.isBetween(range['startDate'], range['endDate']) ||
-    dayMoment.isBetween(range['endDate'], range['startDate'])
+    dayMoment.isBetween(range['endDate'], range['startDate']) ||
+    dayMoment.isSame(range['endDate'], 'day') ||
+    dayMoment.isSame(range['startDate'], 'day')
   )
-}
-
-function isInHovered(dayMoment, moments) {
-  let isInMoments = false;
-  moments.forEach(moment => {
-    if (dayMoment.isSame(moment, 'day')) isInMoments = true
-  });
-  return isInMoments;
 }
 
 function checkWeekend(dayMoment) {
@@ -64,10 +60,7 @@ class Calendar extends Component {
       date,
       shownDate : (shownDate || range && range['endDate'] || date).clone().add(offset, 'months'),
       firstDayOfWeek: (firstDayOfWeek || moment.localeData().firstDayOfWeek()),
-      hoveredDates: []
     }
-
-    this.dayCellHoveredHandler = this.dayCellHovered.bind(this);
 
     this.state  = state;
     this.styles = getTheme(theme);
@@ -102,7 +95,6 @@ class Calendar extends Component {
     onChange && onChange(newDate, Calendar);
     if (!link) {
       this.setState({ date : newDate });
-      if (date.isSame(newDate, 'day')) this.setState({ hoveredDates: [] })
     }
   }
 
@@ -193,10 +185,20 @@ class Calendar extends Component {
     // TODO: Split this logic into smaller chunks
     const { styles }               = this;
 
-    const { range, minDate, maxDate, format, onlyClasses, disableDaysBeforeToday, specialDays, initialDate } = this.props;
-
+    const { 
+      range,
+      minDate,
+      maxDate,
+      format,
+      onlyClasses,
+      disableDaysBeforeToday,
+      specialDays,
+      initialDate,
+      onDayCellHover,
+    } = this.props;
+    
     const shownDate                = this.getShownDate();
-    const { date, firstDayOfWeek, hoveredDates } = this.state;
+    const { date, firstDayOfWeek } = this.state;
     const dateUnix                 = date.unix();
 
     const monthNumber              = shownDate.month();
@@ -246,7 +248,6 @@ class Calendar extends Component {
       const isStartEdge     = range && checkStartEdge(dayMoment, range);
       const isEndEdge       = range && checkEndEdge(dayMoment, range);
       const isEdge          = isStartEdge || isEndEdge;
-      const inHoveredRange  = isInHovered(dayMoment, hoveredDates);
       const isToday         = today.isSame(dayMoment);
       const isWeekend       = checkWeekend(dayMoment);
       const isSunday        = dayMoment.day() === 0;
@@ -271,48 +272,35 @@ class Calendar extends Component {
           isSpecialDay={ isSpecialDay }
           isToday={ isToday }
           key={ index }
-          inHoveredRange={ inHoveredRange }
           isPassive = { isPassive || isOutsideMinMax }
           onlyClasses = { onlyClasses }
           classNames = { classes }
-          onItemMouseEnter = { this.dayCellHoveredHandler }
+          onDayCellHover = { onDayCellHover }
         />
       );
     })
   }
   // comment
-  dayCellHovered(dayMoment, startDate, endDate) {
-    if (startDate.isSame(endDate, 'day')) {
-      const moments = [];
-      const daysDif = dayMoment.diff(startDate, 'day');
-      if (daysDif === 0) return
-      if (daysDif > 0) {
-        // means hovered city after selected
-        for (let i = daysDif; i >= 0; i--) {
-          moments.push(dayMoment.clone().add((-1*i), 'd'));
-        }
-      } else {
-        for (let i = daysDif; i <= 0; i++) {
-          moments.push(dayMoment.clone().add((-1*i), 'd'))
-        }
-      }
-      this.setState({ hoveredDates: moments });
-    } else {
-      this.setState({ hoveredDates: [] });
-    }
-  }
+  
 
   render() {
     const { styles } = this;
-    const { onlyClasses, classNames } = this.props;
-
+    const { onlyClasses, classNames, onCalendarOver } = this.props;
     const classes = { ...defaultClasses, ...classNames };
 
     return (
-      <div style={onlyClasses ? undefined : { ...styles['Calendar'], ...this.props.style }} className={classes.calendar}>
+      <div 
+        style={ onlyClasses ? undefined : { ...styles['Calendar'], ...this.props.style } }
+        className={ classes.calendar }
+        onMouseOver={ onCalendarOver }
+      >
         <div className={classes.monthAndYear}>{ this.renderMonthAndYear(classes) }</div>
         <div className={classes.weekDays}>{ this.renderWeekdays(classes) }</div>
-        <div className={classes.days}>{ this.renderDays(classes) }</div>
+        <div 
+          className={classes.days}
+        >
+          { this.renderDays(classes) }
+        </div>
       </div>
     )
   }

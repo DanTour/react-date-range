@@ -1,0 +1,16 @@
+.rdr-WeekDays {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 0 2px 0 12px;
+}
+
+.rdr-Days > span:nth-child(7n) > .rdr-Day {
+  border-top-right-radius: 50%;
+  border-bottom-right-radius: 50%;
+}
+
+.rdr-Days > span:nth-child(7n - 6) > .rdr-Day { 
+  border-top-left-radius: 50%;
+  border-bottom-left-radius: 50%; 
+}

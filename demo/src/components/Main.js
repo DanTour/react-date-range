@@ -4,6 +4,8 @@ import 'moment/locale/ru'
 import { defaultRanges, Calendar, DateRange } from '../../../lib';
 import Section from 'components/Section';
 // import Arrow from 'react-arrow';
+import theme from './DateRangeTheme.js';
+import './rangePickerTheme.css';
 import 'normalize.css';
 import 'styles/global'
 import styles from 'styles/main';
@@ -58,7 +60,6 @@ export default class Main extends Component {
             />
           </div>
           <DateRange
-            startDate='10/11/2015'
             calendars={1}
             startDate={moment().add(1, 'days')}
             endDate={moment().add(7, 'days')}
@@ -66,6 +67,7 @@ export default class Main extends Component {
             Arrow={Arrow}
             onInit={ this.handleChange.bind(this, 'rangePicker') }
             onChange={ this.handleChange.bind(this, 'rangePicker') }
+            theme={theme}
           />
         </Section>
       </main>

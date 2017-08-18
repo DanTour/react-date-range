@@ -20,14 +20,14 @@ class DayCell extends Component {
   handleMouseEvent(event) {
     event.preventDefault();
     if (this.props.isPassive ) return null;
-    let { onItemMouseEnter, dayMoment, startDate, endDate } = this.props;
+    let { onDayCellHover, dayMoment, startDate, endDate } = this.props;
 
     const newState = {};
 
     switch (event.type) {
       case 'mouseenter':
         newState['hover'] = true;
-        onItemMouseEnter(dayMoment, startDate, endDate);
+        onDayCellHover(dayMoment, startDate, endDate);
         break;
 
       case 'mouseup':
@@ -66,24 +66,23 @@ class DayCell extends Component {
       isSunday,
       isSpecialDay,
       isDisabled,
-      inHoveredRange,
       isWeekend
     } = this.props;
-
-    const { styles } = this;
-
+    
+    const { styles }      = this;
     const hoverStyle      = hover && !isInRange ? styles['DayHover'] : {};
     const activeStyle     = active ? styles['DayActive'] : {};
     const passiveStyle    = isPassive ? styles['DayPassive'] : {};
     const startEdgeStyle  = isStartEdge ? styles['DayStartEdge'] : {};
     const endEdgeStyle    = isEndEdge ? styles['DayEndEdge'] : {};
     const selectedStyle   = isSelected ? styles['DaySelected'] : {};
-    const inRangeStyle    = (isInRange || inHoveredRange) ? styles['DayInRange'] : {};
+    const inRangeStyle    = isInRange ? styles['DayInRange'] : {};
     const todayStyle      = isToday ? styles['DayToday'] : {};
     const sundayStyle     = isSunday ? styles['DaySunday'] : {};
     const specialDayStyle = isSpecialDay ? styles['DaySpecialDay'] : {};
     const disabledStyle   = isDisabled ? styles['DayDisabled'] : {};
     const weekendStyle    = isWeekend ? styles['DayWeekend'] : {};
+    const activeWeekend   = isWeekend && isEndEdge || isWeekend && isStartEdge ? styles['DayActiveWeekend'] : {};
 
 
     return {
@@ -98,7 +97,8 @@ class DayCell extends Component {
       ...startEdgeStyle,
       ...endEdgeStyle,
       ...disabledStyle,
-      ...weekendStyle
+      ...weekendStyle,
+      ...activeWeekend
     };
   }
 
@@ -111,17 +111,16 @@ class DayCell extends Component {
             isToday,
             isSunday,
             isSpecialDay,
-            inHoveredRange,
             isWeekend,
             isDisabled
            } = this.props;
 
     return classnames({
       [classes.day]           : true,
-      [classes.dayActive]     : isSelected || inHoveredRange,
+      [classes.dayActive]     : isSelected,
       [classes.dayPassive]    : isPassive,
       [classes.dayDisabled]   : isDisabled,
-      [classes.dayInRange]    : isInRange || inHoveredRange,
+      [classes.dayInRange]    : isInRange,
       [classes.dayStartEdge]  : isStartEdge,
       [classes.dayEndEdge]    : isEndEdge,
       [classes.dayToday]      : isToday,
