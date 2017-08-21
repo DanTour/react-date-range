@@ -69,6 +69,7 @@ export default class Main extends Component {
             onChange={ this.handleChange.bind(this, 'rangePicker') }
             theme={theme}
             maxRange={27}
+            maxDate={moment().add(1, 'year').endOf('month')}
           />
         </Section>
       </main>

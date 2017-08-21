@@ -123,7 +123,7 @@ class Calendar extends Component {
     let month             = moment.months(shownDate.month());
     const year            = shownDate.year();
     const { styles }      = this;
-    const { onlyClasses, lang, showMonthArrow, Arrow, initialDate } = this.props;
+    const { onlyClasses, lang, showMonthArrow, Arrow, initialDate, maxDate } = this.props;
     
     let monthLower = month.toLowerCase()
     month = (lang && LangDic[lang] && LangDic[lang][monthLower]) ? LangDic[lang][monthLower] : month;
@@ -150,7 +150,7 @@ class Calendar extends Component {
           <span className={classes.year}>{year}</span>
         </span>
         {
-          showMonthArrow ?
+          showMonthArrow && shownDate.isBefore(maxDate, 'month') ?
           Arrow ? 
           <Arrow 
             onClick={this.changeMonth.bind(this, +1)}
