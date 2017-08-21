@@ -26,6 +26,7 @@ export default {
     background: 'rgb(213, 227, 255)'
   },
   DaySelected : {
+    background: 'none',
     backgroundColor: 'rgb(213, 227, 255)',
     backgroundImage: "url(https://puu.sh/xcgoV.png)",
     backgroundOrigin: 'padding-box',
@@ -65,5 +66,5 @@ export default {
   DayEndEdge: {
     borderTopRightRadius: '50%',
     borderBottomRightRadius: '50%',
-  }
+  },
 }

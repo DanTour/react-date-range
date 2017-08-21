@@ -17,8 +17,6 @@ class DateRange extends Component {
     const startDate = parseInput(props.startDate, format, 'startOf');
     const endDate   = parseInput(props.endDate, format, 'endOf');
 
-    this.onCalendarLeavedHandler = this.onCalendarLeaved.bind(this);
-
     this.dayCellHoveredHandler = this.dayCellHovered.bind(this);
 
     this.state = {
@@ -64,17 +62,6 @@ class DateRange extends Component {
     this.setState(newState, () => triggerChange && onChange && onChange(range, source));
   }
 
-  onCalendarLeaved(evt) {
-    if (evt.target.className.split(' ').indexOf('rdr-Day') !== -1)  {
-      // yes className
-      console.log('mouseenter');
-      this.calendarLeaved = true;
-    } else {
-      // no className
-      console.log('mouseleave')
-    }
-  }
-
   handleSelect(date, source) {
     
     if (date.startDate && date.endDate) {
@@ -103,9 +90,9 @@ class DateRange extends Component {
         break;
     }
     const triggerChange  = !this.props.twoStepChange || this.step === 0 && this.props.twoStepChange;
-    
     this.setRange(range, source, triggerChange, {
       isRangeFixed: !isRangeFixed,
+      lastDateFixed: date
     });
   }
 
@@ -136,12 +123,23 @@ class DateRange extends Component {
   }
 
   dayCellHovered(dayMoment, startDate, endDate) {
-    const { isRangeFixed, isEndDateChanging, isStartDateChanging } = this.state;
-    if ( !isRangeFixed ) {
+    const { 
+      isRangeFixed,
+      isEndDateChanging,
+      isStartDateChanging,
+      lastDateFixed,
+    } = this.state;
+
+    let { maxRange } = this.props;
+    
+    let isInMaxRange = Math.abs(dayMoment.diff(startDate, 'days')) <= maxRange || 
+                       Math.abs(dayMoment.diff(endDate, 'days')) >= maxRange;
+    console.log('isInMaxRange', isInMaxRange, maxRange);
+    if ( !isRangeFixed && isInMaxRange) {
       if ( !(dayMoment.isSame(startDate, 'day') || dayMoment.isSame(endDate, 'day')) ) {
         // dates not the same
         if (dayMoment.isAfter(endDate)) {
-          // date after end of date range, means user moves right,
+          // date after end of date range, means user moves right
           let range = {
             startDate,
             endDate: dayMoment
@@ -186,16 +184,19 @@ class DateRange extends Component {
           });
         }
       } else {
-        return this.setRange({ startDate: dayMoment, endDate:dayMoment }, false, true);
+        if ( isEndDateChanging ) {
+          this.setRange({ startDate: lastDateFixed, endDate: dayMoment }, false, true)
+        } else {
+          this.setRange({ startDate: dayMoment, endDate: lastDateFixed }, false, true)
+        }
       }
     }
   }
 
   render() {
-    const { ranges, format, linkedCalendars, style, calendars, firstDayOfWeek, minDate, maxDate, classNames, onlyClasses, specialDays, lang, disableDaysBeforeToday, offsetPositive, shownDate, showMonthArrow, rangedCalendars, Arrow } = this.props;
-    const { range, link, isRangeFixed } = this.state;
+    const { ranges, format, linkedCalendars, style, calendars, firstDayOfWeek, minDate, maxDate, classNames, onlyClasses, specialDays, lang, disableDaysBeforeToday, offsetPositive, shownDate, showMonthArrow, rangedCalendars, Arrow, maxRange } = this.props;
+    const { range, link, isRangeFixed, isEndDateChanging } = this.state;
     const { styles } = this;
-
     const classes = { ...defaultClasses, ...classNames };
     const yearsDiff = range.endDate.year() - range.startDate.year();
     const monthsDiff = range.endDate.month() - range.startDate.month();
@@ -218,7 +219,7 @@ class DateRange extends Component {
         {(()=>{
           const _calendars = [];
           const _method = offsetPositive ? 'unshift' : 'push';
-          for (var i = calendarsCount; i >= 0; i--) {
+          for (let i = calendarsCount; i >= 0; i--) {
             const offset = offsetPositive ? i : -i;
             const realDiff = offsetPositive ? diff : -diff;
             const realOffset = (rangedCalendars && i == calendarsCount && diff != 0) ? realDiff : offset;
@@ -244,8 +245,8 @@ class DateRange extends Component {
                 classNames={ classes }
                 onChange={ isRangeFixed ? this.handleSelect.bind(this) : () => this.handleSelect.bind(this)(range) }  
                 Arrow={Arrow}
+                isEndDateChanging={ isEndDateChanging }
                 onDayCellHover={ this.dayCellHoveredHandler }
-                onCalendarOver={ this.onCalendarLeavedHandler }
               />
             );
           }
@@ -268,7 +269,8 @@ DateRange.defaultProps = {
   rangedCalendars : false,
   twoStepChange   : false,
   firstDayOfWeek  : 1,
-  initialDate    : moment().add(1, 'days')
+  initialDate     : moment().add(1, 'days'),
+  maxRange        : 28
 }
 
 DateRange.propTypes = {

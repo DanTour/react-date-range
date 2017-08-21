@@ -68,6 +68,7 @@ export default class Main extends Component {
             onInit={ this.handleChange.bind(this, 'rangePicker') }
             onChange={ this.handleChange.bind(this, 'rangePicker') }
             theme={theme}
+            maxRange={27}
           />
         </Section>
       </main>
