@@ -24,7 +24,8 @@ class DateRange extends Component {
       link          : linkedCalendars && endDate,
       isRangeFixed  : startDate && endDate ? true : false,
       isStartDateChanging: false,
-      isEndDateChanging: false
+      isEndDateChanging: false,
+      lastDateFixed: null
     }
 
     this.step = 0;
@@ -134,6 +135,21 @@ class DateRange extends Component {
     
     let isInMaxRange = Math.abs(dayMoment.diff(startDate, 'days')) <= maxRange && 
                        Math.abs(dayMoment.diff(endDate, 'days')) <= maxRange;
+    if (!isInMaxRange && !isRangeFixed) {
+      let range = {};
+
+      if (isStartDateChanging) {
+        range.startDate = endDate.clone().add(-maxRange, 'days');
+        range.endDate = endDate;
+      }
+
+      if (isEndDateChanging) {
+        range.startDate = startDate;
+        range.endDate = startDate.clone().add(+maxRange, 'days')
+      }
+
+      return this.setRange(range, false, true);
+    }
     
     if ( !isRangeFixed && isInMaxRange) {
       if ( !(dayMoment.isSame(startDate, 'day') || dayMoment.isSame(endDate, 'day')) ) {
