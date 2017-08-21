@@ -132,9 +132,9 @@ class DateRange extends Component {
 
     let { maxRange } = this.props;
     
-    let isInMaxRange = Math.abs(dayMoment.diff(startDate, 'days')) <= maxRange || 
-                       Math.abs(dayMoment.diff(endDate, 'days')) >= maxRange;
-    console.log('isInMaxRange', isInMaxRange, maxRange);
+    let isInMaxRange = Math.abs(dayMoment.diff(startDate, 'days')) <= maxRange && 
+                       Math.abs(dayMoment.diff(endDate, 'days')) <= maxRange;
+    
     if ( !isRangeFixed && isInMaxRange) {
       if ( !(dayMoment.isSame(startDate, 'day') || dayMoment.isSame(endDate, 'day')) ) {
         // dates not the same
