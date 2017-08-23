@@ -192,6 +192,7 @@ class DateRange extends Component {
       if ( !(dayMoment.isSame(startDate, 'day') || dayMoment.isSame(endDate, 'day')) ) {
         // dates not the same
         if (dayMoment.isAfter(endDate)) {
+          console.log('isAfter');
           // date after end of date range, means user moves right
           const range = {
             startDate,

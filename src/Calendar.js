@@ -262,6 +262,7 @@ class Calendar extends Component {
       });
       
       const isOutsideMinMax = isOusideMinMax(dayMoment, minDate, maxDate, format);
+      
       return (
         <DayCell
           isDisabled={ !dayMoment.isAfter(initialDate, 'day') }
@@ -277,7 +278,7 @@ class Calendar extends Component {
           isSunday={ isSunday }
           isSpecialDay={ isSpecialDay }
           isToday={ isToday }
-          key={ index }
+          key={`${dayMoment.dayOfYear()}`}
           isPassive = { isPassive || isOutsideMinMax }
           onlyClasses = { onlyClasses }
           classNames = { classes }

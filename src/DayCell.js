@@ -148,7 +148,8 @@ class DayCell extends Component {
     return (
       <span
         style={onlyClasses ? undefined : dayWrapperStyles}
-        onClick={ isDisabled ? undefined : this.handleSelect.bind(this) }>
+        onClick={ isDisabled ? undefined : this.handleSelect.bind(this) }
+        >
         <span
           onMouseEnter={ isDisabled ? undefined : this.handleMouseEvent.bind(this) }
           onMouseLeave={ isDisabled ? undefined : this.handleMouseEvent.bind(this) }
