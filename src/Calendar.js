@@ -78,12 +78,12 @@ class Calendar extends Component {
 
     if ((range && range['endDate'] && !range['endDate'].isSame(range['startDate'], "day")) || (oldRange && !oldRange["startDate"].isSame(range["startDate"]))) {
       const { isEndDateChanging, isStartDateChanging } = this.props;
+      
       if ( isEndDateChanging && !isStartDateChanging) {
         return this.setState({ shownDate : range['endDate'].clone().add(offset, 'months'), isRangeError }) 
       } 
-      if ( isStartDateChanging ) {
-        return this.setState({ shownDate : range['startDate'].clone().add(offset, 'months'), isRangeError }) 
-      }
+      
+      this.setState({ shownDate : range['startDate'].clone().add(offset, 'months'), isRangeError }) 
     }
   }
 
