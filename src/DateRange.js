@@ -249,7 +249,7 @@ class DateRange extends Component {
 
   render() {
     const { ranges, format, linkedCalendars, style, calendars, firstDayOfWeek, minDate, maxDate, classNames, onlyClasses, specialDays, lang, disableDaysBeforeToday, offsetPositive, shownDate, showMonthArrow, rangedCalendars, Arrow, maxRange } = this.props;
-    const { range, link, isRangeFixed, isEndDateChanging, isStartDateChanging isRangeError } = this.state;
+    const { range, link, isRangeFixed, isEndDateChanging, isStartDateChanging, isRangeError } = this.state;
     const { styles } = this;
     const classes = { ...defaultClasses, ...classNames };
     const yearsDiff = range.endDate.year() - range.startDate.year();
