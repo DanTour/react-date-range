@@ -183,6 +183,16 @@ const defaultTheme = {
   PredefinedRangesItemActive : {
     color         : '#E74C3C',
   },
+  RangeError : {
+    backgroundColor: 'rgba(255, 102, 0, 0.9)',
+    borderRadius: 2,
+    padding: 10,
+    fontFamily: "Proxima Nova Regular, Tahoma, sans-serif",
+    fontSize: '12px',
+    color: '#fff',
+    minWidth: 250
+
+  }
 };
 
 export default (customTheme = {}) => {
@@ -264,7 +274,8 @@ export default (customTheme = {}) => {
 
     DayWeekend: { ...defaultTheme.DayWeekend, ...customTheme.DayWeekend },
 
-    DayActiveWeekend: { ...defaultTheme.DayActiveWeekend, ...customTheme.DayActiveWeekend }
+    DayActiveWeekend: { ...defaultTheme.DayActiveWeekend, ...customTheme.DayActiveWeekend },
 
+    RangeError: { ...defaultTheme.RangeError, ...customTheme.RangeError }
   }
 }

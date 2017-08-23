@@ -287,7 +287,7 @@ class Calendar extends Component {
 
   render() {
     const { styles } = this;
-    const { onlyClasses, classNames, onCalendarOver } = this.props;
+    const { onlyClasses, classNames, onCalendarOver, isRangeError, maxRange } = this.props;
     const classes = { ...defaultClasses, ...classNames };
 
     return (
@@ -303,6 +303,14 @@ class Calendar extends Component {
         >
           { this.renderDays(classes) }
         </div>
+        {isRangeError &&
+        <div
+          style={ styles['RangeError'] }
+        >
+          Внимание! Максимально допустимый
+          диапазон дат вылета — { maxRange + 1 } дней
+        </div>
+        }
       </div>
     )
   }

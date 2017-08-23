@@ -25,7 +25,8 @@ class DateRange extends Component {
       isRangeFixed  : startDate && endDate ? true : false,
       isStartDateChanging: false,
       isEndDateChanging: false,
-      lastDateFixed: null
+      lastDateFixed: null,
+      israngeError: false
     }
 
     this.step = 0;
@@ -63,17 +64,33 @@ class DateRange extends Component {
     this.setState(newState, () => triggerChange && onChange && onChange(range, source));
   }
 
-  handleSelect(date, source) {
-    
-    if (date.startDate && date.endDate) {
+  handleSelect(boundedRange, date, source) {
+    const { isRangeFixed } = this.state;
+    if ( !isRangeFixed ) {
       this.step = 0;
-      return this.setRange(date, source, true, {
+      const { isStartDateChanging, isEndDateChanging } = this.state;
+      const { maxRange } = this.props;
+      let isError = false;
+      if (isStartDateChanging && !this.isInRange(date, boundedRange.startDate, boundedRange.endDate)) {
+        boundedRange['startDate'] = boundedRange.endDate.clone().add(-maxRange, 'days');
+        isError = true;
+      }
+
+      if (isEndDateChanging && !this.isInRange(date, boundedRange.startDate, boundedRange.endDate)) {
+        boundedRange['endDate'] = boundedRange.startDate.clone().add(+maxRange, 'days');
+        isError = true;
+      }
+
+      return this.setRange(boundedRange, source, true, {
         isRangeFixed: !isRangeFixed,
+        isRangeError: isError
       });
     }
 
+    date = boundedRange;
+
     const { startDate, endDate } = this.state.range;
-    const { isRangeFixed } = this.state;
+    
     const range = {
       startDate,
       endDate,
@@ -91,9 +108,12 @@ class DateRange extends Component {
         break;
     }
     const triggerChange  = !this.props.twoStepChange || this.step === 0 && this.props.twoStepChange;
+
+
     this.setRange(range, source, triggerChange, {
       isRangeFixed: !isRangeFixed,
-      lastDateFixed: date
+      lastDateFixed: date,
+      isRangeError: false
     });
   }
 
@@ -123,6 +143,12 @@ class DateRange extends Component {
     }
   }
 
+  isInRange(dayMoment, startDate, endDate) {
+    const { maxRange } = this.props;
+    return Math.abs(dayMoment.diff(startDate, 'days')) <= maxRange && 
+           Math.abs(dayMoment.diff(endDate, 'days')) <= maxRange;
+  }
+
   dayCellHovered(dayMoment, startDate, endDate) {
     const { 
       isRangeFixed,
@@ -131,21 +157,32 @@ class DateRange extends Component {
       lastDateFixed,
     } = this.state;
 
-    let { maxRange } = this.props;
+    const { maxRange } = this.props;
     
-    let isInMaxRange = Math.abs(dayMoment.diff(startDate, 'days')) <= maxRange && 
-                       Math.abs(dayMoment.diff(endDate, 'days')) <= maxRange;
+    const isInMaxRange = this.isInRange(dayMoment, startDate, endDate);
+
     if (!isInMaxRange && !isRangeFixed) {
-      let range = {};
+      const range = {};
 
       if (isStartDateChanging) {
         range.startDate = endDate.clone().add(-maxRange, 'days');
         range.endDate = endDate;
+        if (dayMoment.month() === range.startDate.month()) {
+          return this.setRange(range, false, true)
+        } else {
+          return
+        }
       }
 
       if (isEndDateChanging) {
         range.startDate = startDate;
-        range.endDate = startDate.clone().add(+maxRange, 'days')
+        range.endDate = startDate.clone().add(+maxRange, 'days');
+
+        if (dayMoment.month() === range.endDate.month() ) {
+          return this.setRange(range, false, true)
+        } else {
+          return
+        }
       }
 
       return this.setRange(range, false, true);
@@ -156,7 +193,7 @@ class DateRange extends Component {
         // dates not the same
         if (dayMoment.isAfter(endDate)) {
           // date after end of date range, means user moves right
-          let range = {
+          const range = {
             startDate,
             endDate: dayMoment
           }
@@ -169,8 +206,9 @@ class DateRange extends Component {
             isStartDateChanging: false
           })
         }
+
         if (dayMoment.isBetween(startDate, endDate, 'day')) {
-          let range = {}
+          const range = {}
           if ( isEndDateChanging ) {
             range.endDate = dayMoment;
             range.startDate = startDate;
@@ -184,7 +222,7 @@ class DateRange extends Component {
 
         if (dayMoment.isBefore(startDate)) {
           // date before start date, means user moves left
-          let range = {
+          const range = {
             endDate,
             startDate: dayMoment
           };
@@ -211,7 +249,7 @@ class DateRange extends Component {
 
   render() {
     const { ranges, format, linkedCalendars, style, calendars, firstDayOfWeek, minDate, maxDate, classNames, onlyClasses, specialDays, lang, disableDaysBeforeToday, offsetPositive, shownDate, showMonthArrow, rangedCalendars, Arrow, maxRange } = this.props;
-    const { range, link, isRangeFixed, isEndDateChanging } = this.state;
+    const { range, link, isRangeFixed, isEndDateChanging, isRangeError } = this.state;
     const { styles } = this;
     const classes = { ...defaultClasses, ...classNames };
     const yearsDiff = range.endDate.year() - range.startDate.year();
@@ -232,7 +270,7 @@ class DateRange extends Component {
             classNames={ classes } />
         )}
 
-        {(()=>{
+        {(() => {
           const _calendars = [];
           const _method = offsetPositive ? 'unshift' : 'push';
           for (let i = calendarsCount; i >= 0; i--) {
@@ -259,10 +297,12 @@ class DateRange extends Component {
 		            onlyClasses={ onlyClasses }
 		            specialDays={ specialDays }
                 classNames={ classes }
-                onChange={ isRangeFixed ? this.handleSelect.bind(this) : () => this.handleSelect.bind(this)(range) }  
+                onChange={ isRangeFixed ? this.handleSelect.bind(this) : this.handleSelect.bind(this, range) }  
                 Arrow={Arrow}
                 isEndDateChanging={ isEndDateChanging }
                 onDayCellHover={ this.dayCellHoveredHandler }
+                isRangeError={ isRangeError }
+                maxRange={maxRange}
               />
             );
           }
