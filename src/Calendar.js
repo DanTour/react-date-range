@@ -50,7 +50,7 @@ class Calendar extends Component {
   constructor(props, context) {
     super(props, context);
 
-    const { format, range, theme, offset, firstDayOfWeek, locale, shownDate } = props;
+    const { format, range, theme, offset, firstDayOfWeek, locale, shownDate, isRangeError } = props;
     if(locale) {
       moment.locale(locale);
     }
@@ -60,6 +60,7 @@ class Calendar extends Component {
       date,
       shownDate : (shownDate || range && range['endDate'] || date).clone().add(offset, 'months'),
       firstDayOfWeek: (firstDayOfWeek || moment.localeData().firstDayOfWeek()),
+      isRangeError
     }
 
     this.state  = state;
@@ -72,15 +73,15 @@ class Calendar extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { range, offset } = nextProps;
+    const { range, offset, isRangeError } = nextProps;
     const oldRange = this.props.oldRange;
 
     if ((range && range['endDate'] && !range['endDate'].isSame(range['startDate'], "day")) || (oldRange && !oldRange["startDate"].isSame(range["startDate"]))) {
       const { isEndDateChanging } = this.props;
       if ( isEndDateChanging ) {
-        this.setState({ shownDate : range['endDate'].clone().add(offset, 'months') }) 
+        this.setState({ shownDate : range['endDate'].clone().add(offset, 'months'), isRangeError }) 
       } else {
-        this.setState({ shownDate : range['startDate'].clone().add(offset, 'months') }) 
+        this.setState({ shownDate : range['startDate'].clone().add(offset, 'months'), isRangeError }) 
       }
     }
   }
@@ -114,7 +115,8 @@ class Calendar extends Component {
     const newMonth = this.state.shownDate.clone().add(direction, 'months');
 
     this.setState({
-      shownDate : newMonth
+      shownDate : newMonth,
+      isRangeError: false
     });
   }
 
@@ -287,7 +289,8 @@ class Calendar extends Component {
 
   render() {
     const { styles } = this;
-    const { onlyClasses, classNames, onCalendarOver, isRangeError, maxRange } = this.props;
+    const { onlyClasses, classNames, onCalendarOver, maxRange } = this.props;
+    const { isRangeError } = this.state;
     const classes = { ...defaultClasses, ...classNames };
 
     return (
