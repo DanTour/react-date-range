@@ -192,7 +192,6 @@ class DateRange extends Component {
       if ( !(dayMoment.isSame(startDate, 'day') || dayMoment.isSame(endDate, 'day')) ) {
         // dates not the same
         if (dayMoment.isAfter(endDate)) {
-          console.log('isAfter');
           // date after end of date range, means user moves right
           const range = {
             startDate,
@@ -250,7 +249,7 @@ class DateRange extends Component {
 
   render() {
     const { ranges, format, linkedCalendars, style, calendars, firstDayOfWeek, minDate, maxDate, classNames, onlyClasses, specialDays, lang, disableDaysBeforeToday, offsetPositive, shownDate, showMonthArrow, rangedCalendars, Arrow, maxRange } = this.props;
-    const { range, link, isRangeFixed, isEndDateChanging, isRangeError } = this.state;
+    const { range, link, isRangeFixed, isEndDateChanging, isStartDateChanging isRangeError } = this.state;
     const { styles } = this;
     const classes = { ...defaultClasses, ...classNames };
     const yearsDiff = range.endDate.year() - range.startDate.year();
@@ -301,6 +300,7 @@ class DateRange extends Component {
                 onChange={ isRangeFixed ? this.handleSelect.bind(this) : this.handleSelect.bind(this, range) }  
                 Arrow={Arrow}
                 isEndDateChanging={ isEndDateChanging }
+                isStartDateChanging={ isStartDateChanging }
                 onDayCellHover={ this.dayCellHoveredHandler }
                 isRangeError={ isRangeError }
                 maxRange={maxRange}
