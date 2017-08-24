@@ -143,9 +143,10 @@ class DateRange extends Component {
         });
       }
 
-      const { isOpen:oldOpen, isRangeFixed } = this.props;
+      const { isOpen:oldOpen } = this.props;
       const { isOpen:newOpen } = newProps;
-      
+      const { isRangeFixed } = this.state;
+
       oldOpen && !newOpen && !isRangeFixed && this.setRange({
           startDate,
           endDate: startDate
