@@ -26,7 +26,7 @@ class DateRange extends Component {
       isStartDateChanging: false,
       isEndDateChanging: false,
       lastDateFixed: null,
-      israngeError: false
+      isRangeError: false
     }
 
     this.step = 0;
@@ -70,7 +70,9 @@ class DateRange extends Component {
       this.step = 0;
       const { isStartDateChanging, isEndDateChanging } = this.state;
       const { maxRange } = this.props;
+
       let isError = false;
+
       if (isStartDateChanging && !this.isInRange(date, boundedRange.startDate, boundedRange.endDate)) {
         boundedRange['startDate'] = boundedRange.endDate.clone().add(-maxRange, 'days');
         isError = true;
@@ -248,7 +250,7 @@ class DateRange extends Component {
   }
 
   render() {
-    const { ranges, format, linkedCalendars, style, calendars, firstDayOfWeek, minDate, maxDate, classNames, onlyClasses, specialDays, lang, disableDaysBeforeToday, offsetPositive, shownDate, showMonthArrow, rangedCalendars, Arrow, maxRange } = this.props;
+    const { ranges, format, linkedCalendars, style, calendars, firstDayOfWeek, minDate, maxDate, classNames, onlyClasses, specialDays, lang, disableDaysBeforeToday, offsetPositive, shownDate, showMonthArrow, rangedCalendars, Arrow, maxRange, isOpen } = this.props;
     const { range, link, isRangeFixed, isEndDateChanging, isStartDateChanging, isRangeError } = this.state;
     const { styles } = this;
     const classes = { ...defaultClasses, ...classNames };
@@ -304,6 +306,7 @@ class DateRange extends Component {
                 onDayCellHover={ this.dayCellHoveredHandler }
                 isRangeError={ isRangeError }
                 maxRange={maxRange}
+                isOpen={isOpen}
               />
             );
           }

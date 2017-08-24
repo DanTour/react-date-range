@@ -110,17 +110,19 @@ class Calendar extends Component {
   constructor(props, context) {
     super(props, context);
 
-    const { format, range, theme, offset, firstDayOfWeek, locale, shownDate, isRangeError } = props;
+    const { format, range, theme, offset, firstDayOfWeek, locale, shownDate, isRangeError, isOpen } = props;
     if(locale) {
       moment.locale(locale);
     }
 
     const date = parseInput(props.date, format, 'startOf')
+    
     const state = {
       date,
       shownDate : (shownDate || range && range['endDate'] || date).clone().add(offset, 'months'),
       firstDayOfWeek: (firstDayOfWeek || moment.localeData().firstDayOfWeek()),
-      isRangeError
+      isRangeError,
+      isOpen
     }
 
     this.state  = state;
@@ -133,17 +135,22 @@ class Calendar extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { range, offset, isRangeError } = nextProps;
-    const oldRange = this.props.oldRange;
+    const { isOpen:oldOpen }                        = this.props;
+    const { range, offset, isRangeError, isOpen }   = nextProps;
+    const oldRange                                  = this.props.oldRange;
+
+    if (!oldOpen) {
+      return this.setState({ shownDate: range['startDate'], isOpen})
+    }
 
     if ((range && range['endDate'] && !range['endDate'].isSame(range['startDate'], "day")) || (oldRange && !oldRange["startDate"].isSame(range["startDate"]))) {
       const { isEndDateChanging, isStartDateChanging } = this.props;
       
       if ( isEndDateChanging || (!isEndDateChanging && !isStartDateChanging) ) {
-        return this.setState({ shownDate : range['endDate'].clone().add(offset, 'months'), isRangeError }) 
+        return this.setState({ shownDate : range['endDate'].clone().add(offset, 'months'), isRangeError, isOpen }) 
       } 
       if ( isStartDateChanging ) {
-        return this.setState({ shownDate : range['startDate'].clone().add(offset, 'months'), isRangeError }) 
+        return this.setState({ shownDate : range['startDate'].clone().add(offset, 'months'), isRangeError, isOpen }) 
       }
     }
   }

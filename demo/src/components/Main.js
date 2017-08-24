@@ -62,7 +62,7 @@ export default class Main extends Component {
           <DateRange
             calendars={1}
             startDate={moment().add(1, 'days')}
-            endDate={moment().add(7, 'days')}
+            endDate={moment().add(8, 'days')}
             lang={'ru'}
             Arrow={Arrow}
             onInit={ this.handleChange.bind(this, 'rangePicker') }
@@ -70,6 +70,7 @@ export default class Main extends Component {
             theme={theme}
             maxRange={27}
             maxDate={moment().add(1, 'year').endOf('month')}
+            shownDate={moment().add(1, 'days')}
           />
         </Section>
       </main>
