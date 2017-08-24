@@ -17,6 +17,66 @@ function checkRange(dayMoment, range) {
   )
 }
 
+const RightArrow = (props) => {
+
+  const { onClick } = props;
+
+  const defaultStyles = {
+    display: 'inline-block',
+    fill: 'none',
+    stroke: '#293355',
+    strokeLinejoin: 'round',
+    strokeWidth: '1px',
+    fillRule: 'evenodd'
+  }
+
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg"
+      width="4.87"
+      height="18"
+      viewBox="0 0 4.87 8.375"
+      onClick={onClick}
+      style={{float:'right', cursor: 'pointer'}}
+      >
+        <path 
+          style={defaultStyles}
+          d="M1124.75,406.313l4.2-3.814-4.2-3.815"
+          transform="translate(-1124.41 -398.313)"
+        />
+    </svg>
+  )
+}
+
+const LeftArrow = ( props ) => {
+
+  const defaultStyles = {
+    display: 'inline-block',
+    fill: 'none',
+    stroke: '#293355',
+    strokeLinejoin: 'round',
+    strokeWidth: '1px',
+    fillRule: 'evenodd'
+  }
+
+  return (
+  <svg 
+    onClick={props.onClick}
+    style={{ float: 'left', cursor: 'pointer' }}
+    xmlns="http://www.w3.org/2000/svg"
+    width="4.969"
+    height="18"
+    viewBox="0 0 4.969 8.062">
+      <path 
+        style={defaultStyles}
+        d="M933.642,399.354l-4.3,3.644,4.3,3.644"
+        transform="translate(-929 -398.969)"
+      />
+  </svg>
+  )
+}
+
+
 function checkWeekend(dayMoment) {
   let isWeekend = false;
 
@@ -127,7 +187,7 @@ class Calendar extends Component {
     let month             = moment.months(shownDate.month());
     const year            = shownDate.year();
     const { styles }      = this;
-    const { onlyClasses, lang, showMonthArrow, Arrow, initialDate, maxDate } = this.props;
+    const { onlyClasses, lang, showMonthArrow, initialDate, maxDate } = this.props;
     
     let monthLower = month.toLowerCase()
     month = (lang && LangDic[lang] && LangDic[lang][monthLower]) ? LangDic[lang][monthLower] : month;
@@ -136,17 +196,10 @@ class Calendar extends Component {
       <div style={onlyClasses ? undefined : styles['MonthAndYear']} className={classes.monthAndYearWrapper}>
         {
           showMonthArrow && shownDate.isAfter(initialDate, 'month') ?
-          Arrow ? 
-          <Arrow 
+          <LeftArrow 
             onClick={this.changeMonth.bind(this, -1)}
-          /> :
-          <button
-            type="button"
-            style={onlyClasses ? undefined : { ...styles['MonthButton'], float : 'left' }}
-            className={classes.prevButton}
-            onClick={this.changeMonth.bind(this, -1)}>
-            <i style={onlyClasses ? undefined : { ...styles['MonthArrow'], ...styles['MonthArrowPrev'] }}></i>
-          </button> : null
+          />
+          : null
         }
         <span>
           <span className={classes.month}>{month}</span>
@@ -155,17 +208,10 @@ class Calendar extends Component {
         </span>
         {
           showMonthArrow && shownDate.isBefore(maxDate, 'month') ?
-          Arrow ? 
-          <Arrow 
+          <RightArrow 
             onClick={this.changeMonth.bind(this, +1)}
-          /> :
-          <button
-            type="button"
-            style={onlyClasses ? undefined : { ...styles['MonthButton'], float : 'right' }}
-            className={classes.nextButton}
-            onClick={this.changeMonth.bind(this, +1)}>
-            <i style={onlyClasses ? undefined : { ...styles['MonthArrow'], ...styles['MonthArrowNext'] }}></i>
-          </button> : null
+          /> 
+          : null
         }
       </div>
     )
